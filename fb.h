@@ -3,9 +3,6 @@
 
 #include <avr/io.h>
 
-#define FB_AXIS_X 0
-#define FB_AXIS_Y 1
-
 typedef struct _Framebuffer {
     uint16_t width;
     uint16_t height;
@@ -13,7 +10,7 @@ typedef struct _Framebuffer {
     uint8_t *content;
 } Framebuffer;
 
-void fb_init(Framebuffer *b, uint8_t width, uint8_t height);
+Framebuffer *fb_init(Framebuffer *b);
 void fb_mirror(Framebuffer *buf, uint8_t x, uint8_t y, uint8_t rev_bytes);
 
 #endif

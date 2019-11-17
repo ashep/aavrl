@@ -17,24 +17,19 @@
 #define MAX7219_TEST 0xF
 
 typedef struct _MAX7219Config {
-    volatile uint8_t *ddr;
-    volatile uint8_t *port;
-    uint8_t cs;
-    uint8_t clk;
-    uint8_t din;
-    uint8_t n_disp;
-    uint8_t reversed_h;
-    uint8_t reversed_v;
+    SPI_Config *spi;
     Framebuffer *buf;
+    uint8_t reverse_x;
+    uint8_t reverse_y;
+
 } MAX7219Config;
 
-void max7219_init(MAX7219Config *conf, Framebuffer *buf, volatile uint8_t *ddr, volatile uint8_t *port, uint8_t cs, 
-                    uint8_t clk, uint8_t din, uint8_t n_disp, uint8_t reversed_h, uint8_t reversed_v);
-void max7219_send_byte(MAX7219Config *config, uint8_t byte);
-void max_7219_latch(MAX7219Config *config);
-void max7219_flush(MAX7219Config *config);
-void max7219_command(MAX7219Config *config, uint8_t addr, uint8_t data);
-void max7219_command_all(MAX7219Config *config, uint8_t addr, uint8_t data);
-void max7219_clear(MAX7219Config *config);
+void max7219_init(MAX7219Config *conf);
+
+void max7219_command(MAX7219Config *config, uint8_t addr, uint8_t data, uint8_t latch);
+
+void max7219_command_all(MAX7219Config *config, uint8_t addr, uint8_t data, uint8_t latch);
+
 void max7119_set_buf(MAX7219Config *config, uint8_t start, uint8_t *data, uint8_t size);
+
 void max7219_update(MAX7219Config *config);

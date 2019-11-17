@@ -1,6 +1,8 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+#include "avr/io.h"
+
 #define BIT_VAL(data, y) (data >> y) & 1
 #define BIT_SET(data, y) data |= (1 << y)
 #define BIT_CLEAR(data, y) data &= ~(1 << y)

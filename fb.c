@@ -7,10 +7,8 @@
 /**
  * Initialize framebuffer
  **/
-void fb_init(Framebuffer *buf, uint8_t width, uint8_t height) {
-    buf->width = width;
-    buf->height = height;
-    buf->length = width * height;
+Framebuffer *fb_init(Framebuffer *buf) {
+    buf->length = buf->width * buf->height;
     buf->content = malloc(buf->length);
 
     // Fill buf with zeroes
@@ -18,6 +16,8 @@ void fb_init(Framebuffer *buf, uint8_t width, uint8_t height) {
     for (uint16_t i = 0; i < buf->length; i++) {
         *p++ = 0;
     }
+
+    return buf;
 }
 
 void fb_mirror(Framebuffer *buf, uint8_t x, uint8_t y, uint8_t rev_bytes) {
