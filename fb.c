@@ -1,64 +1,107 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <avr/io.h>
+#include <stdbool.h>
 #include "util.h"
 #include "fb.h"
 
 /**
  * Initialize framebuffer
  **/
-Framebuffer *fb_init(Framebuffer *buf) {
-    buf->length = buf->width * buf->height;
-    buf->content = malloc(buf->length);
+void fb_init(Framebuffer *buf, uint16_t width, uint16_t height, uint8_t color_mode)
+{
+    buf->width = width;
+    buf->height = height;
+    buf->color_mode = color_mode;
 
-    // Fill buf with zeroes
-    uint8_t *p = buf->content;
-    for (uint16_t i = 0; i < buf->length; i++) {
-        *p++ = 0;
+    if (color_mode == FB_COLOR_MONO)
+    {
+        // 8 pixels per byte
+        buf->length = buf->width / 8 * buf->height;
+    }
+    else if (color_mode == FB_COLOR_RGB565)
+    {
+        // 2 bytes per pixel
+        buf->length = buf->width * 2 * buf->height;
     }
 
-    return buf;
+    buf->content = malloc(buf->length * sizeof(buf->content));
+
+    fb_clear(buf);
 }
 
-void fb_mirror(Framebuffer *buf, uint8_t x, uint8_t y, uint8_t rev_bytes) {
-    if (!(x || y))
-        return;
-    
-    uint8_t *pos;
+void fb_clear(Framebuffer *buf) {
+    uint8_t *p = buf->content;
 
-    if (x) { // Horizontal
-        uint8_t *new_buf = malloc(buf->length);
-
-        for (uint16_t row_n = 1; row_n <= buf->height; row_n++) {
-            // Move to the end of the current row
-            pos = buf->content + (buf->width * row_n - 1);
-
-            // Copy columns in a reverse order
-            for (uint16_t col_n = 0; col_n < buf->width; col_n++) {
-                uint8_t c = *pos--;
-                *new_buf++ = rev_bytes ? reverse_byte(c) : c;
-            }
-        }
-
-        free(buf->content);
-        buf->content = new_buf - buf->length;
+    // Fill buf with zeroes
+    for (uint16_t i = 0; i < buf->length; i++)
+    {
+        *p++ = 0;
     }
-    
-    if (y) {  // Vertical
-        uint8_t *new_buf = malloc(buf->length);
+}
 
-        // Iterate over rows in a reverse order
-        for (uint16_t row_n = buf->height; row_n > 0; row_n--) {
-            // Move to the start of the current row
-            pos = buf->content + (buf->width * (row_n - 1));
+void fb_pixel(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color)
+{
+    if (x > buf->width || y > buf->height)
+    {
+        return;
+    }
 
-            // Copy columns
-            for (uint16_t col_n = 0; col_n < buf->width; col_n++) {
-                *new_buf++ = *pos++;
+    if (buf->color_mode == FB_COLOR_MONO)
+    {
+        // Absolute dot position
+        int byte_pos = (buf->width * y + x) / 8;
+        int bit_pos = x % 8;
+
+        if (color)
+        {
+            BIT_SET(buf->content[byte_pos], bit_pos);
+        }
+        else
+        {
+            BIT_CLEAR(buf->content[byte_pos], bit_pos);
+        }
+    }
+    else if (buf->color_mode == FB_COLOR_RGB565)
+    {
+        /* TODO */
+    }
+}
+
+void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color, bool fill)
+{
+    // Top line
+    for (uint16_t x = x1; x <= x2; x++)
+    {
+        fb_pixel(buf, x, y1, color);
+    }
+
+    // Bottom line
+    for (uint16_t x = x1; x <= x2; x++)
+    {
+        fb_pixel(buf, x, y2, color);
+    }
+
+    // Left line
+    for (uint16_t y = y1; y <= y2; y++)
+    {
+        fb_pixel(buf, x1, y, color);
+    }
+
+    // Right line
+    for (uint16_t y = y1; y <= y2; y++)
+    {
+        fb_pixel(buf, x2, y, color);
+    }
+
+    // Fill
+    if (fill)
+    {
+        for (uint16_t x = x1 + 1; x < x2; x++)
+        {
+            for (uint16_t y = y1 + 1; y < y2; y++)
+            {
+                fb_pixel(buf, x, y, color);
             }
         }
-
-        free(buf->content);
-        buf->content = new_buf - buf->length;
     }
 }

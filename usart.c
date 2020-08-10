@@ -1,3 +1,11 @@
+#ifndef F_CPU
+#define F_CPU 8000000
+#endif
+
+#ifndef BAUD
+#define BAUD 115200
+#endif
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <avr/io.h>

@@ -3,10 +3,14 @@
 
 /**
  * Reverse a byte
+ *
+ * https://stackoverflow.com/questions/2602823/in-c-c-whats-the-simplest-way-to-reverse-the-order-of-bits-in-a-byte
  */
-uint8_t reverse_byte(uint8_t b) {
+uint8_t reverse_byte(uint8_t b)
+{
    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+   
    return b;
 }

@@ -16,20 +16,16 @@
 #define MAX7219_SHUTDOWN 0xC
 #define MAX7219_TEST 0xF
 
-typedef struct _MAX7219Config {
+typedef struct MAX7219Config {
     SPI_Config *spi;
     Framebuffer *buf;
+    uint8_t n_displays;
     uint8_t reverse_x;
     uint8_t reverse_y;
 
 } MAX7219Config;
 
 void max7219_init(MAX7219Config *conf);
-
-void max7219_command(MAX7219Config *config, uint8_t addr, uint8_t data, uint8_t latch);
-
-void max7219_command_all(MAX7219Config *config, uint8_t addr, uint8_t data, uint8_t latch);
-
-void max7119_set_buf(MAX7219Config *config, uint8_t start, uint8_t *data, uint8_t size);
-
+void max7219_command(MAX7219Config *config, uint8_t addr, uint8_t data);
+void max7219_command_all(MAX7219Config *config, uint8_t addr, uint8_t data);
 void max7219_update(MAX7219Config *config);
