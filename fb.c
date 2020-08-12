@@ -7,63 +7,54 @@
 /**
  * Initialize framebuffer
  **/
-void fb_init(Framebuffer *buf, uint16_t width, uint16_t height, uint8_t color_mode)
+void fb_init(Framebuffer *buf, uint16_t cols, uint16_t rows, uint8_t color_mode)
 {
-    buf->width = width;
-    buf->height = height;
+    buf->cols = cols;
+    buf->rows = rows;
     buf->color_mode = color_mode;
+    buf->content = calloc(rows, sizeof(*buf->content));
 
     if (color_mode == FB_COLOR_MONO)
     {
-        // 8 pixels per byte
-        buf->length = buf->width / 8 * buf->height;
-    }
-    else if (color_mode == FB_COLOR_RGB565)
-    {
-        // 2 bytes per pixel
-        buf->length = buf->width * 2 * buf->height;
+        buf->ppw = 16;
     }
 
-    buf->content = malloc(buf->length * sizeof(buf->content));
-
-    fb_clear(buf);
-}
-
-void fb_clear(Framebuffer *buf) {
-    uint8_t *p = buf->content;
-
-    // Fill buf with zeroes
-    for (uint16_t i = 0; i < buf->length; i++)
+    buf->wpr = cols / buf->ppw;
+    for (uint16_t r = 0; r < rows; r++)
     {
-        *p++ = 0;
+        buf->content[r] = calloc(buf->wpr, sizeof(uint16_t));
     }
 }
 
-void fb_pixel(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color)
+void fb_clear(Framebuffer *buf)
 {
-    if (x > buf->width || y > buf->height)
+    for (uint16_t r = 0; r < buf->rows; r++)
     {
-        return;
+        for (uint16_t w = 0; w < buf->wpr; w++)
+        {
+            buf->content[r][w] = 0;
+        }
     }
+}
+
+void fb_set_px(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color)
+{
+    if (x >= buf->cols || y >= buf->rows)
+        return;
 
     if (buf->color_mode == FB_COLOR_MONO)
     {
-        // Absolute dot position
-        int byte_pos = (buf->width * y + x) / 8;
-        int bit_pos = x % 8;
+        uint16_t word = x / buf->ppw;
+        uint16_t bit = x % 16;
 
-        if (color)
-        {
-            BIT_SET(buf->content[byte_pos], bit_pos);
-        }
+        if (color > 0)
+            BIT_SET(buf->content[y][word], bit);
         else
-        {
-            BIT_CLEAR(buf->content[byte_pos], bit_pos);
-        }
+            BIT_CLEAR(buf->content[y][word], bit);
     }
     else if (buf->color_mode == FB_COLOR_RGB565)
     {
-        /* TODO */
+        buf->content[y][x] = color;
     }
 }
 
@@ -71,36 +62,63 @@ void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
 {
     // Top line
     for (uint16_t x = x1; x <= x2; x++)
-    {
-        fb_pixel(buf, x, y1, color);
-    }
+        fb_set_px(buf, x, y1, color);
 
     // Bottom line
     for (uint16_t x = x1; x <= x2; x++)
-    {
-        fb_pixel(buf, x, y2, color);
-    }
+        fb_set_px(buf, x, y2, color);
 
     // Left line
     for (uint16_t y = y1; y <= y2; y++)
-    {
-        fb_pixel(buf, x1, y, color);
-    }
+        fb_set_px(buf, x1, y, color);
 
     // Right line
     for (uint16_t y = y1; y <= y2; y++)
-    {
-        fb_pixel(buf, x2, y, color);
-    }
+        fb_set_px(buf, x2, y, color);
 
     // Fill
     if (fill)
     {
         for (uint16_t x = x1 + 1; x < x2; x++)
-        {
             for (uint16_t y = y1 + 1; y < y2; y++)
+                fb_set_px(buf, x, y, color);
+    }
+}
+
+void fb_dump(Framebuffer *buf)
+{
+    char b[6];
+
+    for (uint16_t r = 0; r < buf->rows; r++)
+    {
+        for (uint16_t w = buf->wpr; w > 0; w--)
+        {
+            if (w == buf->wpr)
             {
-                fb_pixel(buf, x, y, color);
+                printf("[%4u] ", r);
+            }
+
+            dump_bin(16, buf->content[r][w - 1]);
+
+            if (w == 1)
+            {
+                printf(" ");
+                for (uint16_t w2 = buf->wpr; w2 > 0; w2--)
+                {
+                    printf("%u", buf->content[r][w2 - 1]);
+                    if (w2 == 1)
+                    {
+                        printf("\n");
+                    }
+                    else
+                    {
+                        printf("|");
+                    }
+                }
+            }
+            else
+            {
+                printf("|");
             }
         }
     }

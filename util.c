@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <avr/io.h>
 #include "util.h"
 
@@ -11,6 +12,14 @@ uint8_t reverse_byte(uint8_t b)
    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
-   
+
    return b;
+}
+
+void dump_bin(uint8_t width, uint16_t v)
+{
+   for (uint8_t i = width; i > 0; i--)
+   {
+      printf("%u", (v >> (i - 1)) & 1);
+   }
 }
