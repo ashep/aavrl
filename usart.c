@@ -32,9 +32,10 @@ void usart_init(bool setup_stdout)
     // Set frame format: 8 data bits, 1 stop bit
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 
-    if (setup_stdout) {
-    static FILE stdo = FDEV_SETUP_STREAM(usart_stdout_writer, NULL, _FDEV_SETUP_WRITE);
-    stdout = &stdo;
+    if (setup_stdout)
+    {
+        static FILE stdo = FDEV_SETUP_STREAM(usart_stdout_writer, NULL, _FDEV_SETUP_WRITE);
+        stdout = &stdo;
     }
 }
 
@@ -93,9 +94,7 @@ void usart_read_line(char *buf, uint8_t echo)
     }
 
     if (echo)
-    {
         usart_write('\n');
-    }
 
     buf[buf_cnt] = 0x0;
 }
@@ -116,7 +115,6 @@ void usart_write_line(char *line)
     usart_write('\r');
     usart_write('\n');
 }
-
 
 /**
  * USART stdout writer

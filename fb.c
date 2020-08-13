@@ -15,26 +15,18 @@ void fb_init(Framebuffer *buf, uint16_t cols, uint16_t rows, uint8_t color_mode)
     buf->content = calloc(rows, sizeof(*buf->content));
 
     if (color_mode == FB_COLOR_MONO)
-    {
         buf->ppw = 16;
-    }
 
     buf->wpr = cols / buf->ppw;
     for (uint16_t r = 0; r < rows; r++)
-    {
         buf->content[r] = calloc(buf->wpr, sizeof(uint16_t));
-    }
 }
 
 void fb_clear(Framebuffer *buf)
 {
     for (uint16_t r = 0; r < buf->rows; r++)
-    {
         for (uint16_t w = 0; w < buf->wpr; w++)
-        {
             buf->content[r][w] = 0;
-        }
-    }
 }
 
 void fb_set_px(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color)
@@ -87,16 +79,12 @@ void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
 
 void fb_dump(Framebuffer *buf)
 {
-    char b[6];
-
     for (uint16_t r = 0; r < buf->rows; r++)
     {
         for (uint16_t w = buf->wpr; w > 0; w--)
         {
             if (w == buf->wpr)
-            {
                 printf("[%4u] ", r);
-            }
 
             dump_bin(16, buf->content[r][w - 1]);
 
@@ -107,13 +95,9 @@ void fb_dump(Framebuffer *buf)
                 {
                     printf("%u", buf->content[r][w2 - 1]);
                     if (w2 == 1)
-                    {
                         printf("\n");
-                    }
                     else
-                    {
                         printf("|");
-                    }
                 }
             }
             else

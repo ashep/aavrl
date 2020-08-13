@@ -19,9 +19,7 @@ void max7219_command(MAX7219Config *config, uint8_t addr, uint8_t data)
 void max7219_command_all(MAX7219Config *config, uint8_t addr, uint8_t data)
 {
     for (uint8_t i = 0; i < config->n_displays; i++)
-    {
         max7219_command(config, addr, data);
-    }
 
     spi_latch(config->spi);
 }
