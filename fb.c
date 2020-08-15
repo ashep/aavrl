@@ -29,6 +29,19 @@ void fb_init(Framebuffer *buf, uint16_t cols, uint16_t rows, uint8_t color_mode)
 }
 
 /**
+ * Free memory allocated by fb_init()
+ */
+void fb_free(Framebuffer *buf)
+{
+    // Rows
+    for (uint16_t r = 0; r < buf->rows; r++)
+        free(buf->content[r]);
+
+    // Pointers to rows
+    free(buf->content);
+}
+
+/**
  * Print framebuffer's content
  */
 void fb_print(Framebuffer *buf)
@@ -98,6 +111,43 @@ void fb_merge(Framebuffer *dst, Framebuffer *src, uint16_t x, uint16_t y)
     for (uint16_t kx = 0; kx < src->cols; kx++)
         for (uint16_t ky = 0; ky < src->rows; ky++)
             fb_set_px(dst, x + kx, y + ky, fb_get_px(src, kx, ky));
+}
+
+/**
+ * Shift content to the left
+ */
+void fb_shift_left(Framebuffer *buf, uint16_t n)
+{
+    if (buf->color_mode == FB_COLOR_MONO)
+    {
+        uint8_t lbp = sizeof(**buf->content) * 8 - 1; // last bit position
+
+        for (uint16_t r = 0; r < buf->rows; r++)
+        {
+            bool *bt = calloc(buf->wpr, sizeof(bool)); // bit transfer
+
+            for (uint16_t w = 0; w < buf->wpr; w++)
+            {
+                // If last bit is set and it's not the last word in a row,
+                // that bit must be transfered to the next word
+                if (BIT_VAL(buf->content[r][w], lbp) && w + 1 < buf->wpr)
+                    bt[w + 1] = true;
+                else
+                    bt[w + 1] = false;
+
+                buf->content[r][w] = buf->content[r][w] << n;
+
+                // Transfer last bit from previous word
+                if (bt[w] == true)
+                {
+                    BIT_SET(buf->content[r][w], 0);
+                    bt[w] = false;
+                }
+            }
+
+            free(bt);
+        }
+    }
 }
 
 /**
