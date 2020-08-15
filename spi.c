@@ -3,9 +3,8 @@
 
 /**
  * Initialize an SPI configuration
- *
  */
-void spi_init(SPI_Config *config)
+void spi_init(SPI *config)
 {
     // Setup data direction register for output
     *config->ddr |= 1 << config->cs | 1 << config->clk | 1 << config->din;
@@ -14,7 +13,7 @@ void spi_init(SPI_Config *config)
 /**
  * Send a single byte
  */
-void spi_send_byte(SPI_Config *config, uint8_t byte)
+void spi_send_byte(SPI *config, uint8_t byte)
 {
     BIT_CLEAR(*config->port, config->din);
 
@@ -33,9 +32,9 @@ void spi_send_byte(SPI_Config *config, uint8_t byte)
 }
 
 /**
- * Latch loaded data into registers
+ * Latch the registers
  */
-void spi_latch(SPI_Config *config)
+void spi_latch(SPI *config)
 {
     BIT_SET(*config->port, config->cs);
     BIT_CLEAR(*config->port, config->cs);

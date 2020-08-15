@@ -6,17 +6,28 @@
 /**
  * SPI configuration
  */
-typedef struct SPI_Config
+typedef struct SPI
 {
     volatile uint8_t *ddr;  // data direction register
-    volatile uint8_t *port; //
+    volatile uint8_t *port; // port register
     uint8_t cs;             // CS pin number
     uint8_t clk;            // CLS pin number
     uint8_t din;            // DIN pin number
-} SPI_Config;
+} SPI;
 
-void spi_init(SPI_Config *config);
-void spi_send_byte(SPI_Config *config, uint8_t byte);
-void spi_latch(SPI_Config *config);
+/**
+ * Initialize an SPI configuration
+ */
+void spi_init(SPI *config);
 
-#endif //_SPI_H
+/**
+ * Send a single byte
+ */
+void spi_send_byte(SPI *config, uint8_t byte);
+
+/**
+ * Latch the registers
+ */
+void spi_latch(SPI *config);
+
+#endif

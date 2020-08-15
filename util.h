@@ -3,11 +3,11 @@
 
 #include "avr/io.h"
 
-#define BIT_VAL(data, y) (data >> y) & 1U
-#define BIT_SET(data, y) data |= 1U << y
-#define BIT_CLEAR(data, y) data &= ~(1U << y)
-#define BIT_TOGGLE(data, y) data ^= 1U << y
-#define BYTE_TOGGLE (data) data = ~data
+#define BIT_VAL(x, n) (x >> n) & 1U
+#define BIT_SET(x, n) x |= 1U << n
+#define BIT_CLEAR(x, n) x &= ~(1U << n)
+#define BIT_TOGGLE(x, n) x ^= 1U << n
+#define BYTE_TOGGLE (x) x = ~x
 #define ARRAY_LEN(x) (sizeof(x) / sizeof((x)[0]))
 #define LSB(x) (x & 0xff)
 #define MSB(x) (x >> 8)
