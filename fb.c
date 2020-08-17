@@ -232,15 +232,15 @@ void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
  * Place a character into the buffer
  *
  * 1. Font start from fisrt prinatble char with code 33.
- * 2. Each character represented by sequence of font->height + 1 bytes.
+ * 2. Each character represented by sequence of (font->height + 1) bytes.
  * 3. First byte of this sequence is character width.
- * 4. Other font->height bytes is rows of the character.
+ * 4. Other font->height bytes contain rows of the character.
  *
  * Returns width of the printed character
  */
 uint8_t fb_char(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch)
 {
-    const uint8_t offset = (ch - 33) * (font->height + 1);
+    const uint16_t offset = (ch - 33) * (font->height + 1);
 
     uint8_t ch_width = pgm_read_byte(&font->content[offset]); // first byte is character width
 
@@ -262,8 +262,6 @@ uint8_t fb_char(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch
             // TODO
         }
     }
-
-    fb_dump(&ch_buf);
 
     // Place character content into target buffer
     fb_merge(buf, &ch_buf, x, y);
