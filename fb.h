@@ -19,6 +19,7 @@ typedef struct Framebuffer
 typedef struct Font {
     const uint8_t *content;
     uint8_t height;
+    uint8_t spacing;
 } Font;
 
 void fb_init(Framebuffer *buf, uint16_t cols, uint16_t rows, uint8_t color_mode);
@@ -31,6 +32,7 @@ void fb_shift_left(Framebuffer *buf, uint16_t n);
 void fb_set_px(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color);
 uint16_t fb_get_px(Framebuffer *buf, uint16_t x, uint16_t y);
 void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color, bool fill);
-uint8_t fb_char(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch);
+uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char ch);
+uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char *s);
 
 #endif

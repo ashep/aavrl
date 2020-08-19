@@ -54,7 +54,7 @@ void fb_dump(Framebuffer *buf)
             if (w == buf->wpr)
                 printf("[%4u] ", r);
 
-            dump_bin(16, buf->content[r][w - 1]);
+            dump_bin(buf->content[r][w - 1], 16);
 
             if (w == 1)
             {
@@ -231,16 +231,16 @@ void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
 /**
  * Place a character into the buffer
  *
- * 1. Font start from fisrt prinatble char with code 33.
+ * 1. Font start from fisrt prinatble char with code 32.
  * 2. Each character represented by sequence of (font->height + 1) bytes.
  * 3. First byte of this sequence is character width.
  * 4. Other font->height bytes contain rows of the character.
  *
  * Returns width of the printed character
  */
-uint8_t fb_char(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch)
+uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char ch)
 {
-    const uint16_t offset = (ch - 33) * (font->height + 1);
+    const uint16_t offset = (ch - 32) * (font->height + 1);
 
     uint8_t ch_width = pgm_read_byte(&font->content[offset]); // first byte is character width
 
@@ -269,5 +269,15 @@ uint8_t fb_char(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch
     // Free character buffer
     fb_free(&ch_buf);
 
-    return ch_width;
+    return x + ch_width + font->spacing;
+}
+
+uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char *s)
+{
+    uint16_t pos = x;
+
+    while (*s)
+        pos = fb_putc(buf, pos, y, font, *s++);
+
+    return pos;
 }

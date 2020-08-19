@@ -16,7 +16,7 @@ uint8_t reverse_byte(uint8_t b)
    return b;
 }
 
-void dump_bin(uint8_t width, uint16_t v)
+void dump_bin(uint16_t v, uint8_t width)
 {
    for (uint8_t i = width; i > 0; i--)
       printf("%u", (v >> (i - 1)) & 1);

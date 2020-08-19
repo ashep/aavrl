@@ -13,6 +13,6 @@
 #define MSB(x) (x >> 8)
 
 uint8_t reverse_byte(uint8_t b);
-void dump_bin(uint8_t width, uint16_t v);
+void dump_bin(uint16_t v, uint8_t width);
 
 #endif
