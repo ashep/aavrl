@@ -32,7 +32,7 @@ void fb_shift_left(Framebuffer *buf, uint16_t n);
 void fb_set_px(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color);
 uint16_t fb_get_px(Framebuffer *buf, uint16_t x, uint16_t y);
 void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color, bool fill);
-uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char ch);
-uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char *s);
+uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch);
+uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t *s);
 
 #endif

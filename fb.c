@@ -238,7 +238,7 @@ void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
  *
  * Returns width of the printed character
  */
-uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char ch)
+uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch)
 {
     const uint16_t offset = (ch - 32) * (font->height + 1);
 
@@ -272,7 +272,7 @@ uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char ch)
     return x + ch_width + font->spacing;
 }
 
-uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char *s)
+uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t *s)
 {
     uint16_t pos = x;
 
