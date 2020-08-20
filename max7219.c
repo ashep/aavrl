@@ -76,10 +76,6 @@ void max7219_draw(MAX7219 *config, Framebuffer *buf)
                 else
                     byte = LSB(word);
 
-                // printf("row: %u, word: %u, ", row_i - 1, word_n - 1);
-                // dump_bin(byte, 8);
-                // printf("\n");
-
                 max7219_command(config, row_i, byte);
                 disp_cnt++;
             }
