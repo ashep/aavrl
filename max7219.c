@@ -59,22 +59,30 @@ void max7219_draw(MAX7219 *config, Framebuffer *buf)
     uint16_t **p = buf->content;
 
     // Each row
-    for (int16_t row_i = buf->rows; row_i > 0; row_i--)
+    for (int16_t row_i = 1; row_i <= buf->rows; row_i++)
     {
-        // Push a row into each display byte by byte
-        for (uint8_t disp_i = 0; disp_i < config->displays_x; disp_i++)
+        uint8_t disp_cnt = 0;
+
+        for (uint8_t word_n = buf->wpr + 1 - config->displays_x / 2; word_n <= buf->wpr; word_n++)
         {
-            // Framebuffer stores rows as 16-bit values, but MAX7219 stores rows as 8-bit values.
-            // We need to determine word index in a row, dividing current display by 2
-            uint16_t word = buf->content[row_i - 1][disp_i / 2];
+            // 2 bytes per word
+            for (uint8_t byte_cnt = 0; byte_cnt < 2 && disp_cnt < config->displays_x; byte_cnt++)
+            {
+                uint16_t word = buf->content[row_i - 1][word_n - 1];
 
-            uint8_t byte = 0;
-            if (disp_i % 2)
-                byte = MSB(word);
-            else
-                byte = LSB(word);
+                uint8_t byte = 0;
+                if (byte_cnt % 2)
+                    byte = MSB(word);
+                else
+                    byte = LSB(word);
 
-            max7219_command(config, 9 - row_i, byte);
+                // printf("row: %u, word: %u, ", row_i - 1, word_n - 1);
+                // dump_bin(byte, 8);
+                // printf("\n");
+
+                max7219_command(config, row_i, byte);
+                disp_cnt++;
+            }
         }
 
         spi_latch(config->spi);

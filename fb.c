@@ -117,7 +117,7 @@ void fb_merge(Framebuffer *dst, Framebuffer *src, uint16_t x, uint16_t y)
 /**
  * Shift content to the left
  */
-void fb_shift_left(Framebuffer *buf, uint16_t n)
+void fb_shift_h(Framebuffer *buf, uint8_t direction, uint16_t pixels)
 {
     if (buf->color_mode == FB_COLOR_MONO)
     {
@@ -136,7 +136,7 @@ void fb_shift_left(Framebuffer *buf, uint16_t n)
                 else
                     bt[w + 1] = false;
 
-                buf->content[r][w] = buf->content[r][w] << n;
+                buf->content[r][w] = buf->content[r][w] << pixels;
 
                 // Transfer last bit from previous word
                 if (bt[w] == true)
@@ -156,8 +156,8 @@ void fb_shift_left(Framebuffer *buf, uint16_t n)
  */
 void _set_px_mono(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color)
 {
-    uint16_t word = x / buf->ppw;
-    uint16_t bit = x % 16;
+    uint16_t word = buf->wpr - 1 - x / buf->ppw;
+    uint16_t bit = 15 - x % 16;
 
     if (color > 0)
         BIT_SET(buf->content[y][word], bit);
