@@ -60,7 +60,7 @@ uint8_t twi_stop()
  * rw == 0 is master WRITE mode
  * rw == 1 is master READ mode
  */
-uint8_t twi_sla(uint8_t addr, bool rw)
+uint8_t twi_sla(uint8_t addr, uint8_t rw)
 {
     // Load 7-bit address + R/W bit to the TWDR
     TWDR = (addr << 1) | rw;
@@ -87,6 +87,25 @@ uint8_t twi_write_byte(uint8_t byte)
     // Wait while the operation ends
     while (!(TWCR & (1 << TWINT)))
         ;
+
+    // Status register with prescaler bits masked
+    return TWSR & ~3;
+}
+
+uint8_t twi_read_byte(uint8_t *byte, bool is_last_byte)
+{
+    // Initiate the transmission
+    if (is_last_byte)
+        TWCR = (1 << TWEN) | (1 << TWINT);
+    else
+        TWCR = (1 << TWEN) | (1 << TWINT) | (1 << TWEA);
+
+    // Wait while current operation ends
+    while (!(TWCR & (1 << TWINT)))
+        ;
+
+    // Read a byte
+    *byte = TWDR;
 
     // Status register with prescaler bits masked
     return TWSR & ~3;
