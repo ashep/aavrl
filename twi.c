@@ -92,13 +92,13 @@ uint8_t twi_write_byte(uint8_t byte)
     return TWSR & ~3;
 }
 
-uint8_t twi_read_byte(uint8_t *byte, bool is_last_byte)
+uint8_t twi_read_byte(uint8_t *byte, bool send_ack)
 {
     // Initiate the transmission
-    if (is_last_byte)
-        TWCR = (1 << TWEN) | (1 << TWINT);
-    else
+    if (send_ack)
         TWCR = (1 << TWEN) | (1 << TWINT) | (1 << TWEA);
+    else
+        TWCR = (1 << TWEN) | (1 << TWINT);
 
     // Wait while current operation ends
     while (!(TWCR & (1 << TWINT)))

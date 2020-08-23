@@ -36,6 +36,6 @@ uint8_t twi_start();
 uint8_t twi_stop();
 uint8_t twi_sla(uint8_t addr, uint8_t rw);
 uint8_t twi_write_byte(uint8_t byte);
-uint8_t twi_read_byte(uint8_t *byte, bool is_last_byte);
+uint8_t twi_read_byte(uint8_t *byte, bool send_ack);
 
 #endif

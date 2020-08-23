@@ -15,6 +15,7 @@ void max7219_init(MAX7219 *conf)
     max7219_command_all(conf, MAX7219_DECODE_MODE, 0x0);
     max7219_command_all(conf, MAX7219_SHUTDOWN, 0);
     max7219_command_all(conf, MAX7219_SHUTDOWN, 1);
+    max7219_clear(conf);
 }
 /**
   * Send a command to a display
