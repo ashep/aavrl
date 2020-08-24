@@ -109,6 +109,7 @@ void fb_merge(Framebuffer *dst, Framebuffer *src, uint16_t x, uint16_t y)
     if (x >= dst->cols || y >= dst->rows)
         return;
 
+    // TODO: implement more effective algorithm
     for (uint16_t kx = 0; kx < src->cols; kx++)
         for (uint16_t ky = 0; ky < src->rows; ky++)
             fb_set_px(dst, x + kx, y + ky, fb_get_px(src, kx, ky));
@@ -184,7 +185,10 @@ void fb_set_px(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color)
  */
 uint16_t _get_px_mono(Framebuffer *buf, uint16_t x, uint16_t y)
 {
-    return (uint16_t)BIT_VAL(buf->content[y][x / buf->ppw], x);
+    uint16_t word = buf->wpr - 1 - x / buf->ppw;
+    uint16_t bit = 15 - x % 16;
+
+    return (uint16_t)BIT_VAL(buf->content[y][word], bit);
 }
 
 /**
@@ -231,27 +235,57 @@ void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
 /**
  * Place a character into the buffer
  *
- * 1. Font start from fisrt prinatble char with code 32.
- * 2. Each character represented by sequence of (font->height + 1) bytes.
- * 3. First byte of this sequence is character width.
- * 4. Other font->height bytes contain rows of the character.
+ * TODO: work with 16-bit wide fonts
+ * 
+ * 1. Font starts from fisrt prinatble char with code 32.
+ * 2. Each character represented by sequence of (font->height + 1) bytes/words.
+ * 3. First byte/word of the sequence contains character width.
+ * 4. Other font->height bytes/words contain rows of the character.
  *
  * Returns width of the printed character
  */
 uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch)
 {
-    const uint16_t offset = (ch - 32) * (font->height + 1);
+    // If character code is beyond the size of the font
+    
+    if (ch - font->ascii_offset + 1 > font->size) {
+        printf("ch: %u, fsize: %u\n", ch - font->ascii_offset, font->size);
+        return 0;
+    }
+        
 
-    uint8_t ch_width = pgm_read_byte(&font->content[offset]); // first byte is character width
+    // Offset from the beginning of the font content.
+    // ASCII-fonts starts from fisrt prinatble char with code 32.
+    uint16_t offset = (ch - font->ascii_offset) * (font->height + 1);
 
-    // Prepare buffer to load the character into it
+    // First byte/word is character width
+    uint8_t ch_width;
+    if (font->width == FONT_WIDTH_8)
+    {
+        ch_width = pgm_read_byte(&font->content[offset]);
+    }
+    else
+    {
+        // TODO
+    }
+
+    // Framebuffer to store character's content into it
     Framebuffer ch_buf;
     fb_init(&ch_buf, ch_width, font->height, buf->color_mode);
 
-    // Plase each row of character into buffer
+    // Place each row of character into buffer
+    uint16_t row;
     for (uint8_t i = 0; i < font->height; i++)
     {
-        uint8_t row = pgm_read_byte(&font->content[1 + offset + i]);
+        if (font->width == FONT_WIDTH_8)
+        {
+            // Recall that row is 16-bit wide and shift content of the 8-bit value
+            row = pgm_read_byte(&font->content[1 + offset + i]) << 8;
+        }
+        else
+        {
+            // TODO
+        }
 
         if (buf->color_mode == FB_COLOR_MONO)
         {
@@ -272,7 +306,7 @@ uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch
     return x + ch_width + font->spacing;
 }
 
-uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t *s)
+uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char *s)
 {
     uint16_t pos = x;
 

@@ -2,6 +2,7 @@
 #define _FB_FB_H
 
 #include <avr/io.h>
+#include "font/font.h"
 
 #define FB_COLOR_MONO 0
 #define FB_COLOR_RGB565 1
@@ -21,13 +22,6 @@ typedef struct Framebuffer
     uint16_t **content;
 } Framebuffer;
 
-typedef struct Font
-{
-    const uint8_t *content;
-    uint8_t height;
-    uint8_t spacing;
-} Font;
-
 void fb_init(Framebuffer *buf, uint16_t cols, uint16_t rows, uint8_t color_mode);
 void fb_free(Framebuffer *buf);
 void fb_dump(Framebuffer *buf);
@@ -40,6 +34,6 @@ void fb_set_px(Framebuffer *buf, uint16_t x, uint16_t y, uint16_t color);
 uint16_t fb_get_px(Framebuffer *buf, uint16_t x, uint16_t y);
 void fb_rect(Framebuffer *buf, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color, bool fill);
 uint8_t fb_putc(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t ch);
-uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, uint8_t *s);
+uint16_t fb_puts(Framebuffer *buf, uint16_t x, uint16_t y, Font *font, char *s);
 
 #endif
