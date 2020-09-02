@@ -1,5 +1,5 @@
-AVR Lib
-=======
+AAVRL -- ashep's AVR library
+============================
 
 Simple collection of useful stuff for writing programs for AVR MCUs.
 
